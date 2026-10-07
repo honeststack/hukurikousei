@@ -1,0 +1,44 @@
+# 1台のサーバーで動かす場合の構成例（アプリ・PostgreSQL・定期処理）
+services:
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: yufuda
+      POSTGRES_USER: yufuda
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD を設定してください}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yufuda"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://yufuda:${DB_PASSWORD}@db:5432/yufuda
+      APP_SECRET: ${APP_SECRET:?APP_SECRET を設定してください}
+      APP_URL: ${APP_URL:?APP_URL を設定してください}
+      CRON_SECRET: ${CRON_SECRET:?CRON_SECRET を設定してください}
+      SMTP_URL: ${SMTP_URL:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      REQUIRE_ADMIN_2FA: ${REQUIRE_ADMIN_2FA:-true}
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  # 定期処理（失効→付与・精算の仮集計）。何度実行しても結果は同じなので1時間ごとに呼ぶ。
+  cron:
+    image: curlimages/curl:latest
+    restart: always
+    depends_on: [app]
+    environment:
+      CRON_SECRET: ${CRON_SECRET}
+    entrypoint: ["sh", "-c", "while true; do curl -fsS -X POST -H \"Authorization: Bearer $$CRON_SECRET\" http://app:3000/api/cron/monthly || true; sleep 3600; done"]
+
+volumes:
+  pgdata:

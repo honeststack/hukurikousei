@@ -1,0 +1,49 @@
+{
+  "name": "yufuda",
+  "version": "0.1.0",
+  "private": true,
+  "description": "温浴施設 福利厚生サービス（会員証・入館・ポイント・精算）",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:reset": "tsx scripts/reset.ts",
+    "job:monthly": "tsx scripts/monthly.ts",
+    "admin:create": "tsx scripts/create-admin.ts",
+    "test:e2e": "node tests/e2e/actions.mjs && node tests/e2e/crawl.mjs && node tests/e2e/member.mjs"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "drizzle-orm": "^0.45.3",
+    "jsqr": "^1.4.0",
+    "next": "^16.4.0",
+    "nodemailer": "^10.0.15",
+    "otplib": "^13.5.0",
+    "papaparse": "^5.7.0",
+    "pg": "^8.23.1",
+    "qrcode": "^1.5.4",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "@types/nodemailer": "^8.0.2",
+    "@types/papaparse": "^5.5.2",
+    "@types/pg": "^8.23.1",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "drizzle-kit": "^0.31.11",
+    "playwright": "^1.63.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
+  }
+}
