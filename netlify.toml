@@ -1,0 +1,13 @@
+# Netlify の設定。データベースは外部の PostgreSQL（DATABASE_URL）を使う。
+# 組込みDB（PGlite）はサーバーレス環境では使えない。
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Next.js 16 は Node.js 20.9 以上が必要
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

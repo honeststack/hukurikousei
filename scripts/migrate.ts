@@ -3,7 +3,7 @@ import path from "node:path";
 import { closeDb, getDb } from "@/db";
 
 async function main() {
-  const url = process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL ?? process.env.NETLIFY_DATABASE_URL;
   if (url) {
     const { Pool } = await import("pg");
     const { drizzle } = await import("drizzle-orm/node-postgres");

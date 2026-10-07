@@ -17,13 +17,20 @@ const MIGRATIONS = path.join(process.cwd(), "drizzle");
  * 組込みDBは起動時にマイグレーションを自動適用する（ローカル開発用）。
  */
 async function open(): Promise<Holder> {
-  const url = process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL ?? process.env.NETLIFY_DATABASE_URL;
+  const serverless = !!(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.VERCEL);
   if (url) {
     const { Pool } = await import("pg");
     const { drizzle } = await import("drizzle-orm/node-postgres");
-    const pool = new Pool({ connectionString: url, max: Number(process.env.DB_POOL_MAX ?? 10) });
+    // サーバーレスでは関数ごとに接続を持つため、接続数を絞る
+    const pool = new Pool({ connectionString: url, max: Number(process.env.DB_POOL_MAX ?? (serverless ? 2 : 10)) });
     const db = drizzle(pool, { schema }) as unknown as DB;
     return { db: Promise.resolve(db), close: () => pool.end() };
+  }
+  if (serverless) {
+    throw new Error(
+      "DATABASE_URL が設定されていません。Netlify などのサーバーレス環境では組込みDBを使えないため、PostgreSQL の接続文字列を環境変数 DATABASE_URL に設定してください。",
+    );
   }
   const { PGlite } = await import("@electric-sql/pglite");
   const { drizzle } = await import("drizzle-orm/pglite");
