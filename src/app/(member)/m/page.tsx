@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getDb } from "@/db";
+import { and, eq, isNull, like } from "drizzle-orm";
+import { getDb, schema } from "@/db";
 import { requireMember } from "@/lib/auth";
 import { todaysCheckin } from "@/lib/checkin";
 import { todayMark } from "@/lib/daily";
@@ -24,6 +25,15 @@ export default async function CardPage({ searchParams }: { searchParams: Promise
   const mark = todayMark(now);
   const notices = await noticesFor(member, now, 1);
   const end = lastDayOf(periodOf(today));
+  // 公開デモでは、受付のQRポスターの代わりに施設のQRのリンクを出す
+  const demoQrs =
+    process.env.DEMO_MODE === "true"
+      ? await db
+          .select({ token: schema.facilityQrs.token, name: schema.facilities.name })
+          .from(schema.facilityQrs)
+          .innerJoin(schema.facilities, eq(schema.facilities.id, schema.facilityQrs.facilityId))
+          .where(and(like(schema.facilityQrs.token, "demo-%"), isNull(schema.facilityQrs.revokedAt)))
+      : [];
 
   return (
     <>
@@ -83,6 +93,21 @@ export default async function CardPage({ searchParams }: { searchParams: Promise
               <p className="small mute" style={{ textAlign: "center", margin: 0 }}>
                 スマートフォンのカメラでQRを読み取っても開けます
               </p>
+              {demoQrs.length > 0 && (
+                <div className="card small">
+                  <div className="en" style={{ color: "var(--brass-deep)" }}>
+                    Demo
+                  </div>
+                  <b>受付のQRコードを読み取ったことにする</b>
+                  <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+                    {demoQrs.map((q) => (
+                      <Link key={q.token} href={`/q/${q.token}`} className="btn btn-sm">
+                        {q.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )
         )}

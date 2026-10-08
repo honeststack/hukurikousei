@@ -93,6 +93,16 @@ DB_PASSWORD=... APP_SECRET=... APP_URL=https://your-domain CRON_SECRET=... docke
 docker compose exec app npm run admin:create -- you@example.com "運営 太郎"
 ```
 
+### 公開デモ（Netlify・外部データベースなし）
+
+[netlify.toml](netlify.toml) の設定で、データベースを用意せずに公開デモとして動きます（`DEMO_MODE=true`）。
+
+- ビルド時にデモデータ入りのデータベースを作り（`npm run demo:snapshot`）、サーバーのメモリ上で使います。
+- 変更は Netlify Blobs（設定不要）に保存され、サーバーが複数起動しても同じデータになります。
+- デプロイするたびに、デモデータは初期状態に戻ります。24時間変更がなかった場合も初期状態に戻ります。
+- ログイン画面にデモ用アカウントのボタン、会員証に「受付のQRコードを読み取ったことにする」リンクが出ます。
+- 本番運用に切り替えるときは、Netlify の環境変数に `DATABASE_URL`（PostgreSQL）を設定します。デモモードは自動で無効になります。
+
 HTTPS は前段のリバースプロキシ（nginx、ロードバランサーなど）で終端してください。カメラの起動と位置情報の取得には HTTPS が必要です。
 
 ### 初期設定の順番

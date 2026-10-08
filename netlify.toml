@@ -1,13 +1,20 @@
-# Netlify の設定。データベースは外部の PostgreSQL（DATABASE_URL）を使う。
-# 組込みDB（PGlite）はサーバーレス環境では使えない。
+# Netlify の設定
+#
+# 公開デモ（DEMO_MODE = "true"）：外部のデータベースは不要。
+#   ビルド時にデモデータ入りのデータベースを作り、変更は Netlify Blobs に保存して
+#   複数のサーバーで共有する。デプロイするたびに初期状態に戻る。
+#
+# 本番運用：Site configuration → Environment variables に DATABASE_URL（PostgreSQL）を
+#   設定すると、自動的にそちらを使う（デモモードは無効になる）。
 [build]
-  command = "npm run build"
+  command = "npm run build:demo"
   publish = ".next"
 
 [build.environment]
   # Next.js 16 は Node.js 20.9 以上が必要
   NODE_VERSION = "22"
   NEXT_TELEMETRY_DISABLED = "1"
+  DEMO_MODE = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

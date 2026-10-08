@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { getCurrentMember } from "@/lib/auth";
+import { DemoAccounts } from "@/components/demo-hint";
 import { memberLoginAction } from "../actions";
 
 export const metadata = { title: "ログイン" };
@@ -19,6 +20,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         一度ログインすると、次からはこの画面は出ません
       </p>
       {safe.startsWith("/q/") && <p className="notice">ログインすると、読み取った施設のコース選択に進みます。</p>}
+      {process.env.DEMO_MODE === "true" && <DemoAccounts accounts={[{ label: "会員（山田 花子）", email: "demo@example.com" }]} />}
       <ActionForm action={memberLoginAction}>
         <input type="hidden" name="next" value={safe} />
         <label className="field">

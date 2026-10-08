@@ -49,6 +49,10 @@ async function open(): Promise<Holder> {
 }
 
 export function getDb(): Promise<DB> {
+  // 公開デモ：外部DBなしで、メモリ上のデモデータを使う（src/db/demo.ts）
+  if (process.env.DEMO_MODE === "true" && !process.env.DATABASE_URL && !process.env.NETLIFY_DATABASE_URL) {
+    return import("./demo").then((m) => m.getDemoDb());
+  }
   if (!g.__yufudaDb) {
     const holder = open();
     const db = holder.then((h) => h.db);

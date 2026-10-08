@@ -5,6 +5,8 @@ const SCRYPT = { N: 16384, r: 8, p: 1, keylen: 64 } as const;
 export function appSecret(): string {
   const s = process.env.APP_SECRET;
   if (!s || s.length < 16) {
+    // 公開デモは、デプロイごとの値から秘密鍵を作る（デモのデータはデプロイのたびに作り直される）
+    if (process.env.DEMO_MODE === "true") return `yufuda-demo-${process.env.DEMO_BUILD_ID || "local"}-secret`;
     if (process.env.NODE_ENV === "production") throw new Error("APP_SECRET を16文字以上で設定してください");
     return "dev-secret-not-for-production-use";
   }
